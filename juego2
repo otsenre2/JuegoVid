@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<head>
+
+<title>Juego de la vida</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<script type="text/javascript"> 
+var juego=false;
+var cont=0;
+function CambiarFondo(celula) { 
+	if (!juego){
+		if (celula.style.backgroundColor == "black") { 
+			celula.style.backgroundColor = "white"; }
+		else { 
+			celula.style.backgroundColor = "black"; 
+		}
+	}
+} 
+function ImprimirRed() { 
+	var red=new Array(50);
+	for (i = 0; i < 50; i++){
+		red[i]=new Array(50);
+	}
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+
+			red[i][e] = "<td class='celula' id='i"+i+"e"+e+"' onclick='CambiarFondo(this)'></td>";
+		}
+	}
+	for (i=0; i<50; i++){
+		document.write("<tr>");
+		for (e=0; e<50; e++){
+			document.write(red[i][e]);
+		}
+		document.write("</tr>");
+	}
+}
+function GuardarRed() { 
+	var RedIni=new Array(50);
+	for (i = 0; i < 50; i++){
+		RedIni[i]=new Array(50);
+	}
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+			cel=document.getElementById("i"+i+"e"+e);
+			if (cel.style.backgroundColor == "black"){
+				RedIni[i][e]=1;
+			}else{
+				RedIni[i][e]=0;
+			}
+		}
+	}
+	return RedIni;
+}
+function Aura(RedAura){
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+			if (RedAura[i][e]==1){
+				if (i!=0){if (RedAura[i-1][e]!=1){RedAura[i-1][e]=2;}}
+				if (i!=0 && e!=49){if (RedAura[i-1][e+1]!=1){RedAura[i-1][e+1]=2;}}
+				if (e!=49){if (RedAura[i][e+1]!=1){RedAura[i][e+1]=2;}}
+				if (i!=49 && e!=49){if (RedAura[i+1][e+1]!=1){RedAura[i+1][e+1]=2;}}
+				if (i!=49){if (RedAura[i+1][e]!=1){RedAura[i+1][e]=2;}}
+				if (i!=49 && e!=0){if (RedAura[i+1][e-1]!=1){RedAura[i+1][e-1]=2;}}
+				if (e!=0){if (RedAura[i][e-1]!=1){RedAura[i][e-1]=2;}}
+				if (i!=0 && e!=0){if (RedAura[i-1][e-1]!=1){RedAura[i-1][e-1]=2;}}
+			}
+		}
+	}
+	return RedAura;
+}
+function Mueren(RedMue){
+	var RedViva=new Array(50);
+	for (i = 0; i < 50; i++){
+		RedViva[i]=new Array(50);
+	}
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+			if (RedMue[i][e]==1){
+				cel=0;
+				if (i!=0){if (RedMue[i-1][e]==1){cel++;}}
+				if (i!=0 && e!=49){if (RedMue[i-1][e+1]===1){cel++;}}
+				if (e!=49){if (RedMue[i][e+1]==1){cel++;}}
+				if (i!=49 && e!=49){if (RedMue[i+1][e+1]==1){cel++;}}
+				if (i!=49){if (RedMue[i+1][e]==1){cel++;}}
+				if (i!=49 && e!=0){if (RedMue[i+1][e-1]==1){cel++;}}
+				if (e!=0){if (RedMue[i][e-1]==1){cel++;}}
+				if (i!=0 && e!=0){if (RedMue[i-1][e-1]==1){cel++;}}
+			}
+			if (cel==2 || cel==3){RedViva[i][e]=1;cel=0;}
+			else {RedViva[i][e]=0;}
+		}
+	}
+	return RedViva;
+}
+function Nacen(RedMue){
+	var RedNace=new Array(50);
+	for (i = 0; i < 50; i++){
+		RedNace[i]=new Array(50);
+	}
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+			if (RedMue[i][e]==2){
+				cel=0;
+				if (i!=0){if (RedMue[i-1][e]==1){cel++;}}
+				if (i!=0 && e!=49){if (RedMue[i-1][e+1]===1){cel++;}}
+				if (e!=49){if (RedMue[i][e+1]==1){cel++;}}
+				if (i!=49 && e!=49){if (RedMue[i+1][e+1]==1){cel++;}}
+				if (i!=49){if (RedMue[i+1][e]==1){cel++;}}
+				if (i!=49 && e!=0){if (RedMue[i+1][e-1]==1){cel++;}}
+				if (e!=0){if (RedMue[i][e-1]==1){cel++;}}
+				if (i!=0 && e!=0){if (RedMue[i-1][e-1]==1){cel++;}}
+			}
+			if (cel==3){RedNace[i][e]=1;cel=0;}
+			else {RedNace[i][e]=0;}
+		}
+	}
+	return RedNace;
+}
+function JuegoVida(){
+	var NuevaRed=new Array(50);
+	for (i = 0; i < 50; i++){
+		NuevaRed[i]=new Array(50);
+	}
+	AuraRed=Aura(GuardarRed());
+	MuerenRed=Mueren(AuraRed);
+	NacenRed=Nacen(AuraRed);
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+			NuevaRed[i][e]=MuerenRed[i][e]+NacenRed[i][e];
+		}
+	}
+	return NuevaRed;
+}
+function VerRed(NuevaRed){
+	contad=document.getElementById("contador");
+	cont++;
+	contad.innerHTML=cont;
+	for (i=0; i<50; i++){
+		for (e=0; e<50; e++){
+			cel=document.getElementById("i"+i+"e"+e)
+			if (NuevaRed[i][e] == 1){
+				cel.style.backgroundColor = "black";
+			}else{
+				cel.style.backgroundColor = "white";
+			}
+		}
+	}
+}
+function tiempo() { 
+if(juego){
+	setTimeout ("VerRed(JuegoVida());tiempo();", 200);
+}
+}
+</script> 
+<body>
+<h1>
+Juego de la Vida
+</h1 >
+Haz Click en las Celula que quieras para que esten vivas al comenzar<br>
+<input type="button" id="comiezo" value="Comenzar" onclick="juego=true;tiempo();">
+<input type="button" id="parar" value="Parar" onclick="juego=false;">
+
+<div class="contador" id="contador">0</div>
+<table><tr><td valign=top>
+<div class="informacion">
+1.-Una célula muerta con exactamente 3 células vecinas vivas "nace" (al turno siguiente estará viva).<br>
+2.-Una célula viva con 2 ó 3 células vecinas vivas sigue viva, en otro caso muere o permanece muerta (por "soledad" o "superpoblación").
+</div></td><td>
+<div class="contenedor"><table>
+<script type="text/javascript">ImprimirRed();</script>
+</table></div>
+</tr></table>
+
+
+</body>
+
+</html>
+
+========================estilos.css====================
+body {
+  padding-left: 1em;
+  font-family: Georgia, "Times New Roman",
+        Times, serif;
+  color: purple;
+  background-color: #d8da3d;
+  text-align: center;
+    }
+
+h1{
+text-align: center;
+}
+td.celula{
+width:10px;
+height:10px;
+background-color: #FFFFFF
+}
+div.contenedor{
+text-align: center;
+}
+
+div.contenedor table {
+margin: 0 auto;
+text-align: left;
+}
+div.informacion{
+float:right;
+width:200px;
+text-align:left;
+}
